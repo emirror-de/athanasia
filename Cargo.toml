@@ -1,0 +1,7 @@
+[package]
+name = "athanasia"
+version = "0.1.0"
+authors = ["Lewin Probst <info@emirror.de>"]
+edition = "2018"
+
+[dependencies]
