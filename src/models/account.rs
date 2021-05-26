@@ -27,4 +27,24 @@ impl Account {
     pub fn id(&self) -> AccountId {
         self.id
     }
+
+    /// Returns the available amount.
+    pub fn available(&self) -> f32 {
+        self.available
+    }
+
+    /// Returns the held amount.
+    pub fn held(&self) -> f32 {
+        self.held
+    }
+
+    /// Returns the total amount.
+    pub fn total(&self) -> f32 {
+        self.total
+    }
+
+    /// Returns true if the account is locked.
+    pub fn locked(&self) -> bool {
+        self.locked
+    }
 }
