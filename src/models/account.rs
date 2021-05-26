@@ -1,6 +1,10 @@
+/// Represents an account id.
+pub type AccountId = u16;
+
 /// Represents a clients account.
+#[derive(Debug)]
 pub struct Account {
-    id: u16,
+    id: AccountId,
     available: f32,
     held: f32,
     total: f32,
@@ -17,5 +21,10 @@ impl Account {
             total: 0.0,
             locked: false,
         }
+    }
+
+    /// Returns the account id.
+    pub fn id(&self) -> AccountId {
+        self.id
     }
 }
