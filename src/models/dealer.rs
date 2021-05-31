@@ -87,6 +87,12 @@ impl Dealer {
                     debug!("Transaction ignored, reference not existing: {:?}", transaction);
                     return Ok(());
                 }
+                // check if client is the same as in the referred transaction
+                if transaction.client() != t.unwrap().client() {
+                    #[cfg(debug_assertions)]
+                    debug!("Transaction ignored, client ids do not match: {:?}", transaction);
+                    return Ok(());
+                }
                 // add to dispute register
                 let d = &mut self.storage.dispute_register.lock().await;
                 d.dispute(&t.unwrap().tx());
@@ -102,6 +108,12 @@ impl Dealer {
                     // Partner did a mistake and referred to a transaction not available.
                     #[cfg(debug_assertions)]
                     debug!("Transaction ignored, reference not existing: {:?}", transaction);
+                    return Ok(());
+                }
+                // check if client is the same as in the referred transaction
+                if transaction.client() != t.unwrap().client() {
+                    #[cfg(debug_assertions)]
+                    debug!("Transaction ignored, client ids do not match: {:?}", transaction);
                     return Ok(());
                 }
                 // check if in dispute register
