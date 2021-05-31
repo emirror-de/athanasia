@@ -7,7 +7,7 @@ default-run = "athanasia"
 
 [dependencies]
 log = "^0.4.14"
-env_logger = "^0.8.3"
+flexi_logger = "^0.17.1"
 chrono = "^0.4.19"
 serde = { version = "^1.0.126", features = ["derive"] }
 tokio = { version = "^1.6.0", features = ["full"] }
