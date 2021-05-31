@@ -1,7 +1,4 @@
-use {
-    crate::models::{Transaction, TransactionType},
-    log::{info, warn},
-};
+use {log::debug, serde::Serializer};
 
 /// Represents an account id.
 pub type AccountId = u16;
@@ -9,11 +6,14 @@ pub type AccountId = u16;
 pub type CreditAmount = f32;
 
 /// Represents a clients account.
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct Account {
     id: AccountId,
+    #[serde(serialize_with = "serialize_amount")]
     available: CreditAmount,
+    #[serde(serialize_with = "serialize_amount")]
     held: CreditAmount,
+    #[serde(serialize_with = "serialize_amount")]
     total: CreditAmount,
     locked: bool,
 }
@@ -56,48 +56,60 @@ impl Account {
     }
 
     /// Executes a deposit on the account.
-    pub fn deposit(&mut self, amount: CreditAmount) {
+    pub fn deposit(&mut self, amount: &CreditAmount) {
         self.available += amount;
         self.total += amount;
         #[cfg(debug_assertions)]
-        info!("Deposit {} on account id {}", amount, self.id);
+        debug!("Deposit {} on account id {}", amount, self.id);
     }
 
     /// Executes a withdrawal on the account.
-    pub fn withdrawal(&mut self, amount: CreditAmount) -> Result<(), String> {
-        if self.available < amount {
+    pub fn withdrawal(&mut self, amount: &CreditAmount) -> Result<(), String> {
+        if self.available < *amount {
             let msg = format!(
                 "Withdrawal ignored on account id {}. Amount: {}",
                 self.id, amount
             );
             #[cfg(debug_assertions)]
-            info!("{}", msg);
+            debug!("{}", msg);
             return Err(msg);
         }
         self.available -= amount;
         self.total -= amount;
+        #[cfg(debug_assertions)]
+        debug!("Withdrawal {} on account id {}", amount, self.id);
         Ok(())
     }
 
-    /// Executes a dispute transaction. Notice that the transaction put in this
-    /// function is already the referenced one (so the one that includes the amount).
-    pub fn dispute(&mut self, transaction: &Transaction) {
-        self.available -= transaction.amount();
-        self.held += transaction.amount();
+    /// Executes a dispute transaction.
+    pub fn dispute(&mut self, amount: &CreditAmount) {
+        self.available -= amount;
+        self.held += amount;
+        #[cfg(debug_assertions)]
+        debug!("Dispute {} on account id {}", amount, self.id);
     }
 
-    /// Executes a resolve transaction. Notice that the transaction put in this
-    /// function is already the referenced one (so the one that includes the amount).
-    pub fn resolve(&mut self, transaction: &Transaction) {
-        self.available += transaction.amount();
-        self.held -= transaction.amount();
+    /// Executes a resolve transaction.
+    pub fn resolve(&mut self, amount: &CreditAmount) {
+        self.available += amount;
+        self.held -= amount;
+        #[cfg(debug_assertions)]
+        debug!("Resolve {} on account id {}", amount, self.id);
     }
 
-    /// Executes a chargeback transaction. Notice that the transaction put in this
-    /// function is already the referenced one (so the one that includes the amount).
-    pub fn chargeback(&mut self, transaction: &Transaction) {
-        self.held -= transaction.amount();
-        self.total -= transaction.amount();
+    /// Executes a chargeback transaction.
+    pub fn chargeback(&mut self, amount: &CreditAmount) {
+        self.held -= amount;
+        self.total -= amount;
         self.locked = true;
+        #[cfg(debug_assertions)]
+        debug!("Chargeback {} on account id {}", amount, self.id);
     }
+}
+
+fn serialize_amount<S>(x: &f32, s: S) -> Result<S::Ok, S::Error>
+where
+    S: Serializer,
+{
+    s.serialize_str(&format!("{:.4}", x))
 }
