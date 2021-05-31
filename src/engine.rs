@@ -5,6 +5,7 @@ use {
     tokio::sync::Mutex,
 };
 
+/// Processing engine. Spawns the given amount of threads for processing.
 pub struct Engine {
     pub thread_count: u8,
 }

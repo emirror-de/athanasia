@@ -21,7 +21,6 @@ pub struct TransactionStream {
 
 impl TransactionStream {
     pub fn new() -> Self {
-        // TODO: limit capacity on transactionqueue
         let transaction_queue = Arc::new(RwLock::new(TransactionQueue::new()));
         Self {
             alive: true,
